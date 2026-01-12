@@ -88,11 +88,25 @@ authRouter.post("/refresh", (req, res) => {
       sameSite: "strict",
       maxAge: 15 * 60 * 1000,
     });
+    res.json({ message: "Access token refreshed successfully" });
   } catch (err) {
     return res.sendStatus(403);
   }
 });
+//* FOR TESTING PURPOSE 
+authRouter.get("/user", async (req, res) => {
+  const token = req.cookies.accessToken;
+  if (!token) return res.sendStatus(401);
 
+  try {
+    const payload = verifyToken(token, ACCESS_SECRET) as { userId: string };
+    const user = await userModel.findById(payload.userId);
+    if (!user) return res.sendStatus(404);
+    res.json(user);
+  } catch (err) {
+    return res.sendStatus(403);
+  }
+});
 authRouter.post("/logout", (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
