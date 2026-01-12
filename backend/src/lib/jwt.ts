@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken"
 
-
-
 export function signAccessToken(payload: object, secret: string, options?: jwt.SignOptions) {
   return jwt.sign(payload, secret, { expiresIn: "15m", ...options });
 }
