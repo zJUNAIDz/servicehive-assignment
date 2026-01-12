@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --out-dir dist",
-    "start": "bun run src/index.ts",
+    "start": "bun run dist/index.js",
     "dev": "bun --watch src/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts"
