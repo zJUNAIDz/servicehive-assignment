@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
+import type { JwtPayload } from "jsonwebtoken";
 import { ACCESS_SECRET, REFRESH_SECRET } from "../lib/constants";
 import { signAccessToken, signRefreshToken, verifyToken } from "../lib/jwt";
+import { requireAuth } from "../middlewares/auth";
 import { userModel } from "../models/user";
 export const authRouter = Router();
 
@@ -50,8 +52,9 @@ authRouter.post("/login", async (req, res) => {
       res.status(401).json({ message: "Invalid password" });
       return;
     }
-    const accessToken = signAccessToken({ userId: user._id }, ACCESS_SECRET);
-    const refreshToken = signRefreshToken({ userId: user._id }, ACCESS_SECRET);
+    const userPayload = { id: user._id, name: user.name, email: user.email };
+    const accessToken = signAccessToken(userPayload, ACCESS_SECRET);
+    const refreshToken = signRefreshToken(userPayload, REFRESH_SECRET);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -93,14 +96,10 @@ authRouter.post("/refresh", (req, res) => {
     return res.sendStatus(403);
   }
 });
-//* FOR TESTING PURPOSE 
-authRouter.get("/user", async (req, res) => {
-  const token = req.cookies.accessToken;
-  if (!token) return res.sendStatus(401);
-
+//* FOR TESTING PURPOSE
+authRouter.get("/me", requireAuth, async (req: Request, res: Response) => {
   try {
-    const payload = verifyToken(token, ACCESS_SECRET) as { userId: string };
-    const user = await userModel.findById(payload.userId);
+    const user = await userModel.findById((req.user as JwtPayload).id);
     if (!user) return res.sendStatus(404);
     res.json(user);
   } catch (err) {
