@@ -16,15 +16,11 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-      console.log("Attempting login with", email);
       await login(email, password)
-      console.log("Login successful");
       //eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.log("Login error:", err);
       setError(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
-      console.log("Setting isLoading to false");
       setIsLoading(false)
     }
   }
