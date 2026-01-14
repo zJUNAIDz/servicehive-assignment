@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { bidModel } from "../models/bid";
 import { gigModel } from "../models/gig";
 import { userModel } from "../models/user";
+import type { UserJWT } from "../types/express";
 
 export const bidRouter = Router();
 
@@ -31,26 +32,26 @@ bidRouter.post("/", async (req, res) => {
 });
 
 bidRouter.get("/:gigId", async (req, res) => {
+  // console.log("Fetching bids for gig:", req.params.gigId);
   const { gigId } = req.params;
   try {
-    const user = await userModel.findById(req.query.userId);
+    const user = (await userModel.findById((req.user as UserJWT).id))?.toJSON();
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
+    console.log("USER ID MISSING", user?._id, user);
     const gig = await gigModel.findById(gigId);
     if (!gig) {
       return res.status(404).json({ message: "Gig not found." });
     }
-    // check if gig belongs to user
-    if (gig.ownerId.toString() !== user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "You are not authorized to view these bids." });
+    console.log("Gig ownerId:", gig.ownerId, "User id:", user.id);
+    if (gig.ownerId.toString() !== user.id.toString()) {
+      console.log("User is not the owner of the gig.");
+      return res.json([]); // return empty array if not the owner
     }
-    const bids = await bidModel.find({ gigId });
-    if (bids.length === 0) {
-      return res.status(404).json({ message: "No bids found for this gig." });
-    }
+
+    const bids = (await bidModel.find({ gigId })).map((doc) => doc.toJSON());
+    console.log(`Fetched ${bids.length} bids for gig ${gigId}`);
     res.status(200).json(bids);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
