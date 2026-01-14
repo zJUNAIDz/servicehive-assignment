@@ -6,7 +6,6 @@ import { useAuth } from '@/lib/auth-context'
 
 interface GigListProps {
   gigs: Gig[]
-  onGigClick: (id: string) => void
 }
 
 export const GigList: React.FC<GigListProps> = ({ gigs }) => {
