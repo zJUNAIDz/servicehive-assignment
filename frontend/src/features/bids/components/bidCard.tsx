@@ -1,7 +1,7 @@
 //* bid card component
-import { Button } from '@/components/ui/button'
-import { api } from '@/lib/apiClient'
-import { cn } from '@/lib/utils'
+import { Button } from '@/shared/components/ui/button'
+import { api } from '@/shared/lib/apiClient'
+import { cn } from '@/shared/lib/utils'
 import { QueryClient, useMutation } from '@tanstack/react-query'
 import React from 'react'
 

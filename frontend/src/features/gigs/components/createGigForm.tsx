@@ -1,7 +1,7 @@
 // create gig form
 import React, { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/apiClient'
+import { api } from '@/shared/lib/apiClient'
 
 export const CreateGigForm: React.FC = () => {
   const [title, setTitle] = useState('')

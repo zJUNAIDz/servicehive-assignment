@@ -6,8 +6,8 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "@/components/ui/dialog"
-import { api } from "@/lib/apiClient"
+} from "@/shared/components/ui/dialog"
+import { api } from "@/shared/lib/apiClient"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 interface SubmitBidFormProps {

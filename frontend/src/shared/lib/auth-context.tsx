@@ -1,7 +1,7 @@
-import { api } from '@/lib/apiClient'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createContext, useCallback, useContext, type ReactNode } from 'react'
+import { api } from './apiClient'
 
 export interface User {
   id: string
@@ -48,45 +48,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-const login = useCallback(
-  async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
-    navigate({ to: '/' })
-    return response
-  },
-  [navigate, queryClient]
-)
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const response = await api.post('/auth/login', { email, password });
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
+      await navigate({ to: '/' })
+      return response
+    },
+    [navigate, queryClient]
+  )
 
-const register = useCallback(
-  async (name: string, email: string, password: string) => {
-    await api.post('/auth/register', { name, email, password })
-    // After registration, automatically log in
-    await login(email, password)
-  },
-  [login]
-)
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      await api.post('/auth/register', { name, email, password })
+      // After registration, automatically log in
+      await login(email, password)
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
+      await navigate({ to: '/' })
+    },
+    [login, queryClient, navigate]
+  )
 
-const logout = useCallback(async () => {
-  await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-  await api.post('/auth/logout')
-  await navigate({ to: '/auth/login' })
-}, [queryClient, navigate])
-
-const value: AuthContextValue = {
-  user: user ?? null,
-  isLoading,
-  isError,
-  isAuthenticated: !!user,
-  login,
-  register,
-  logout,
-  refreshUser: async () => {
+  const logout = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-  }
-}
+    await api.post('/auth/logout')
+    await navigate({ to: '/auth/login' })
+  }, [queryClient, navigate])
 
-return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  const value: AuthContextValue = {
+    user: user ?? null,
+    isLoading,
+    isError,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    refreshUser: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
+    }
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 //eslint-disable-next-line
 export function useAuth() {

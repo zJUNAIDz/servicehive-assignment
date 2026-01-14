@@ -1,12 +1,12 @@
 //* create gig card component
-import { api } from '@/lib/apiClient'
-import type { User } from '@/lib/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import type { Gig } from '../types'
 import { BidList } from '../../bids/components/bidList'
 import SubmitBidForm from '../../bids/components/submitBidForm'
-import { cn } from '@/lib/utils'
+import type { User } from '@/shared/lib/auth-context'
+import { cn } from '@/shared/lib/utils'
+import { api } from '@/shared/lib/apiClient'
 
 interface GigCardProps {
   gig: Gig

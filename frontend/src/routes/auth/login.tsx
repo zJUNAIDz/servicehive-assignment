@@ -1,5 +1,5 @@
 import { LoginForm } from '@/features/auth/components/LoginForm'
-import { useAuth } from '@/lib/auth-context'
+import { useAuth } from '@/shared/lib/auth-context'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 

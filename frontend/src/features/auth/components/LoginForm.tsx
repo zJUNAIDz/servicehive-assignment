@@ -1,4 +1,4 @@
-import { useAuth } from '@/lib/auth-context'
+import { useAuth } from '@/shared/lib/auth-context'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 

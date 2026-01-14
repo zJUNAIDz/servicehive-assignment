@@ -1,5 +1,5 @@
-import { useAuth } from '@/lib/auth-context'
 import { Link } from '@tanstack/react-router'
+import { useAuth } from '../lib/auth-context'
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
@@ -27,15 +27,6 @@ export function Navbar() {
               className="hover:text-amber-800 transition-colors"
             >
               Gigs
-            </Link>
-            <Link
-              to="/bids"
-              activeProps={{
-                className: 'font-bold text-amber-900',
-              }}
-              className="hover:text-amber-800 transition-colors"
-            >
-              Bids
             </Link>
           </>
         )}

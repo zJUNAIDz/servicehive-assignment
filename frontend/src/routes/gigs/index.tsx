@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { GigList } from "@/features/gigs/components/gigList";
-import { api } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { api } from "@/shared/lib/apiClient";
 
 export const Route = createFileRoute('/gigs/')({
   component: Gigs,
