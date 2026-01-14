@@ -17,6 +17,28 @@ export function Navbar() {
         >
           GigFlow
         </Link>
+        {isAuthenticated && (
+          <>
+            <Link
+              to="/gigs"
+              activeProps={{
+                className: 'font-bold text-amber-900',
+              }}
+              className="hover:text-amber-800 transition-colors"
+            >
+              Gigs
+            </Link>
+            <Link
+              to="/bids"
+              activeProps={{
+                className: 'font-bold text-amber-900',
+              }}
+              className="hover:text-amber-800 transition-colors"
+            >
+              Bids
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="flex gap-4 items-center">
