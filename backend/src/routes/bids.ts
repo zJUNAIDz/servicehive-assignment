@@ -2,7 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import { bidModel } from "../models/bid";
 import { gigModel } from "../models/gig";
-import { userModel } from "../models/user";
+import { userModel, type User } from "../models/user";
 import type { UserJWT } from "../types/express";
 
 export const bidRouter = Router();
@@ -39,14 +39,12 @@ bidRouter.get("/:gigId", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-    console.log("USER ID MISSING", user?._id, user);
     const gig = await gigModel.findById(gigId);
     if (!gig) {
       return res.status(404).json({ message: "Gig not found." });
     }
-    console.log("Gig ownerId:", gig.ownerId, "User id:", user.id);
-    if (gig.ownerId.toString() !== user.id.toString()) {
-      console.log("User is not the owner of the gig.");
+    const userId = (user as unknown as User).id;
+    if (gig.ownerId.toString() !== userId.toString()) {
       return res.json([]); // return empty array if not the owner
     }
 

@@ -1,6 +1,13 @@
 import { model, Schema } from "mongoose";
 import { transformDoc } from "../lib/utils";
 
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+};
+
 export const userSchema = new Schema(
   {
     name: {
