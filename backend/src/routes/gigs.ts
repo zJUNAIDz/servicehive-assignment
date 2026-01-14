@@ -1,18 +1,20 @@
 import { Router } from "express";
 import { gigModel } from "../models/gig";
+import type { JwtPayload } from "jsonwebtoken";
 
 export const gigRouter = Router();
 
 gigRouter.post("/", (req, res) => {
-  const { title, description, budget, ownerId, status } = req.body;
-  if (!title || !description || !budget || !ownerId) {
+  const { title, description, budget } = req.body;
+  if (!title || !description || !budget) {
     return res.status(400).json({ error: "Missing required fields" });
   }
+  const user = req.user;
   const newGig = new gigModel({
     title,
     description,
     budget,
-    ownerId,
+    ownerId: (user as JwtPayload).id,
   });
   newGig
     .save()
@@ -21,22 +23,24 @@ gigRouter.post("/", (req, res) => {
 });
 
 gigRouter.get("/", async (req, res) => {
-  const searchQuery = req.query.search as string | undefined;
-  if (!searchQuery) {
-    const gigs = await gigModel.find();
-    if (gigs.length === 0) {
-      return res.status(404).json({ error: "No gigs found" });
+  try {
+    const searchQuery = req.query.search as string | undefined;
+    const ownerId = req.query.ownerId as string | undefined;
+
+    const filter: any = {};
+
+    if (ownerId) {
+      filter.ownerId = ownerId;
     }
+
+    if (searchQuery) {
+      filter.title = { $regex: searchQuery, $options: "i" };
+    }
+
+    const gigs = (await gigModel.find(filter)).map(doc => doc.toJSON());
+    console.log("Fetched gigs:", gigs);
     return res.json(gigs);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch gigs" });
   }
-  const gigs = await gigModel.find({
-    $or: [
-      { title: { $regex: searchQuery, $options: "i" } },
-      { description: { $regex: searchQuery, $options: "i" } },
-    ],
-  });
-  if (gigs.length === 0) {
-    return res.status(404).json({ error: "No gigs found" });
-  }
-  return res.json(gigs);
 });
