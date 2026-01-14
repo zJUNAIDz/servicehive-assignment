@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createContext, useCallback, useContext, type ReactNode } from 'react'
 
-interface User {
+export interface User {
   id: string
   name: string
   email: string
@@ -33,55 +33,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isError,
     // refetch,
   } = useQuery<User | null>({
-    queryKey: ['auth', 'user'],
+    queryKey: ['auth', 'me'],
     queryFn: async () => {
       const res = await api.get<User>('/auth/me')
       return res.data
+    },
+    //* data._id should be data.id
+    select: (data) => {
+      if (!data) return null;
+      return { id: data.id, name: data.name, email: data.email };
     },
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const response = await api.post('/auth/login', { email, password });
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
-      navigate({ to: '/' })
-      return response
-    },
-    [navigate, queryClient]
-  )
+const login = useCallback(
+  async (email: string, password: string) => {
+    const response = await api.post('/auth/login', { email, password });
+    await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
+    navigate({ to: '/' })
+    return response
+  },
+  [navigate, queryClient]
+)
 
-  const register = useCallback(
-    async (name: string, email: string, password: string) => {
-      await api.post('/auth/register', { name, email, password })
-      // After registration, automatically log in
-      await login(email, password)
-    },
-    [login]
-  )
+const register = useCallback(
+  async (name: string, email: string, password: string) => {
+    await api.post('/auth/register', { name, email, password })
+    // After registration, automatically log in
+    await login(email, password)
+  },
+  [login]
+)
 
-  const logout = useCallback(async () => {
+const logout = useCallback(async () => {
+  await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
+  await api.post('/auth/logout')
+  await navigate({ to: '/auth/login' })
+}, [queryClient, navigate])
+
+const value: AuthContextValue = {
+  user: user ?? null,
+  isLoading,
+  isError,
+  isAuthenticated: !!user,
+  login,
+  register,
+  logout,
+  refreshUser: async () => {
     await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-    await api.post('/auth/logout')
-    await navigate({ to: '/auth/login' })
-  }, [queryClient, navigate])
-
-  const value: AuthContextValue = {
-    user: user ?? null,
-    isLoading,
-    isError,
-    isAuthenticated: !!user,
-    login,
-    register,
-    logout,
-    refreshUser: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-    }
   }
+}
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 //eslint-disable-next-line
 export function useAuth() {
