@@ -2,9 +2,15 @@ import bcrypt from "bcryptjs";
 import { Router, type Request, type Response } from "express";
 import type { JwtPayload } from "jsonwebtoken";
 import { ACCESS_SECRET, REFRESH_SECRET } from "../lib/constants";
-import { signAccessToken, signRefreshToken, verifyToken } from "../lib/jwt";
+import {
+  decodeToken,
+  signAccessToken,
+  signRefreshToken,
+  verifyToken,
+} from "../lib/jwt";
 import { requireAuth } from "../middlewares/auth";
 import { userModel } from "../models/user";
+import type { UserJWT } from "../types/express";
 export const authRouter = Router();
 
 authRouter.post("/register", async (req, res) => {
@@ -76,15 +82,18 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.post("/refresh", (req, res) => {
-  const token = req.cookies.refreshToken;
-  if (!token) return res.sendStatus(401);
-
+  const token = req.cookies.refreshToken!;
+  // console.log("Refresh token received:", token);
+  if (!token) return res.sendStatus(403);
   try {
-    const payload = verifyToken(token, REFRESH_SECRET) as { userId: string };
-    const newAccessToken = signAccessToken(
-      { userId: payload.userId },
-      ACCESS_SECRET
-    );
+    const decoded = decodeToken(token) as UserJWT;
+    const user: UserJWT = {
+      id: decoded.id,
+      name: decoded.name,
+      email: decoded.email,
+    };
+    // console.log("Refreshing token for user:", user);
+    const newAccessToken = signAccessToken(user, ACCESS_SECRET);
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: true,
@@ -93,13 +102,16 @@ authRouter.post("/refresh", (req, res) => {
     });
     res.json({ message: "Access token refreshed successfully" });
   } catch (err) {
+    console.error("Error refreshing token:", err);
     return res.sendStatus(403);
   }
 });
-//* FOR TESTING PURPOSE
+
 authRouter.get("/me", requireAuth, async (req: Request, res: Response) => {
   try {
-    const user = await userModel.findById((req.user as JwtPayload).id);
+    // console.log(req.user);
+    const user = (await userModel.findById((req.user as JwtPayload).id))?.toJSON();
+    console.log("Fetched user:", user);
     if (!user) return res.sendStatus(404);
     res.json(user);
   } catch (err) {
@@ -111,3 +123,4 @@ authRouter.post("/logout", (req, res) => {
   res.clearCookie("refreshToken");
   res.json({ message: "Logged out successfully" });
 });
+
