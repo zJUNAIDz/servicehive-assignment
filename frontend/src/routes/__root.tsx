@@ -1,43 +1,25 @@
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
+import { Navbar } from '@/components/navbar'
+import { AuthProvider } from '@/lib/auth-context'
+import { QueryClient } from '@tanstack/react-query'
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import "./root.css"
-export const Route = createRootRoute({
+interface MyRouterContext {
+  queryClient: QueryClient
+}
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
 })
 
 function RootComponent() {
   return (
-    <div className='h-full bg-amber-200'>
-      <div className="p-2 flex gap-2 text-lg bg-amber-300">
-        <Link
-          to="/"
-          activeProps={{
-            className: 'font-bold',
-          }}
-          activeOptions={{ exact: true }}
-        >
-          Home
-        </Link>{' '}
-        <Link
-          to="/auth/login"
-          activeProps={{
-            className: 'font-bold',
-          }}
-        >
-          Login
-        </Link>{' '}
-        <Link
-          to="/auth/register"
-          activeProps={{
-            className: 'font-bold',
-          }}
-        >
-          Register
-        </Link>
+    <AuthProvider>
+      <div className='h-full bg-amber-200'>
+        <Navbar />
+        <hr />
+        <Outlet />
+        <TanStackRouterDevtools position="bottom-right" />
       </div>
-      <hr />
-      <Outlet />
-      <TanStackRouterDevtools position="bottom-right" />
-    </div>
+    </AuthProvider>
   )
 }
