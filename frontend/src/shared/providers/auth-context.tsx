@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react'
-import { api } from './apiClient'
+import { api } from '../lib/apiClient'
 
 export interface User {
   id: string
