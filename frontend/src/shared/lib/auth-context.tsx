@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { createContext, useCallback, useContext, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react'
 import { api } from './apiClient'
 
 export interface User {
@@ -17,7 +17,6 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<unknown>
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
-  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -26,14 +25,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-
+  const AUTH_QUERY_KEY = useMemo(() => ['auth', 'me'], []);
   const {
     data: user,
     isLoading,
     isError,
     // refetch,
   } = useQuery<User | null>({
-    queryKey: ['auth', 'me'],
+    queryKey: AUTH_QUERY_KEY,
     queryFn: async () => {
       const res = await api.get<User>('/auth/me')
       return res.data
@@ -51,11 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const response = await api.post('/auth/login', { email, password });
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
       await navigate({ to: '/' })
       return response
     },
-    [navigate, queryClient]
+    [queryClient, navigate, AUTH_QUERY_KEY]
   )
 
   const register = useCallback(
@@ -63,17 +62,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await api.post('/auth/register', { name, email, password })
       // After registration, automatically log in
       await login(email, password)
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-      await navigate({ to: '/' })
     },
-    [login, queryClient, navigate]
+    [login]
   )
 
   const logout = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
     await api.post('/auth/logout')
+    await queryClient.resetQueries({ queryKey: AUTH_QUERY_KEY })
     await navigate({ to: '/auth/login' })
-  }, [queryClient, navigate])
+  }, [queryClient, navigate, AUTH_QUERY_KEY])
 
   const value: AuthContextValue = {
     user: user ?? null,
@@ -83,9 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
-    refreshUser: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'user'] })
-    }
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
