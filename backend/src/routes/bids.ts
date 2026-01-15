@@ -28,6 +28,7 @@ bidRouter.post("/", async (req, res) => {
     await newBid.save();
     res.status(201).json(newBid);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error", error });
   }
 });
@@ -53,7 +54,8 @@ bidRouter.get("/:gigId", async (req, res) => {
     console.log(`Fetched ${bids.length} bids for gig ${gigId}`);
     res.status(200).json(bids);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -108,8 +110,9 @@ bidRouter.patch("/:bidId/hire", async (req, res) => {
     
     res.status(200).json(bid);
   } catch (error) {
+    console.error(error);
     await session.abortTransaction();
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error" });
   } finally {
     session.endSession();
   }

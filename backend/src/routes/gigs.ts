@@ -44,6 +44,7 @@ gigRouter.get("/", async (req, res) => {
     console.log("Fetched gigs:", gigs);
     return res.json(gigs);
   } catch (err) {
+    console.error("Error fetching gigs:", err);
     return res.status(500).json({ error: "Failed to fetch gigs" });
   }
 });

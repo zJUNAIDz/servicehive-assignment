@@ -30,6 +30,7 @@ authRouter.post("/register", async (req, res) => {
 
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -72,6 +73,7 @@ authRouter.post("/login", async (req, res) => {
 
     res.json({ message: "Login successful" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -98,7 +100,7 @@ authRouter.post("/refresh", (req, res) => {
     res.json({ message: "Access token refreshed successfully" });
   } catch (err) {
     console.error("Error refreshing token:", err);
-    return res.sendStatus(403);
+    res.status(403).json({ message: "Forbidden" });
   }
 });
 
@@ -109,10 +111,10 @@ authRouter.get("/me", requireAuth, async (req: Request, res: Response) => {
       await userModel.findById((req.user as JwtPayload).id)
     )?.toJSON();
     console.log("Fetched user:", user);
-    if (!user) return res.sendStatus(404);
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
-    return res.sendStatus(403);
+    return res.status(403).json({ message: "Forbidden" });
   }
 });
 authRouter.post("/logout", (req, res) => {
