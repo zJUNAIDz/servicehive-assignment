@@ -2,7 +2,7 @@
 import React from 'react'
 import { GigCard } from './gigCard'
 import type { Gig } from '../types'
-import { useAuth } from '@/shared/lib/auth-context'
+import { useAuth } from '@/shared/providers/auth-context'
 
 interface GigListProps {
   gigs: Gig[]

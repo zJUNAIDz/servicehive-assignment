@@ -1,5 +1,5 @@
 import { RegisterForm } from '@/features/auth/components/RegisterForm'
-import { useAuth } from '@/shared/lib/auth-context'
+import { useAuth } from '@/shared/providers/auth-context'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 

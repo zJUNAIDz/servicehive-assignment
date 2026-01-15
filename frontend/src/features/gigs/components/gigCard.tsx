@@ -4,7 +4,7 @@ import React from 'react'
 import type { Gig } from '../types'
 import { BidList } from '../../bids/components/bidList'
 import SubmitBidForm from '../../bids/components/submitBidForm'
-import type { User } from '@/shared/lib/auth-context'
+import type { User } from '@/shared/providers/auth-context'
 import { cn } from '@/shared/lib/utils'
 import { api } from '@/shared/lib/apiClient'
 
