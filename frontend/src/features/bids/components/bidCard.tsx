@@ -10,7 +10,6 @@ interface BidCardProps {
   gigTitle: string
   message: string
   status: "pending" | "hired" | "rejected"
-  onClick: (id: string) => void
 }
 
 export const BidCard: React.FC<BidCardProps> = ({
