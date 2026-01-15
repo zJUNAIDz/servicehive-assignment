@@ -1,6 +1,7 @@
 # ServiceHive Assignment
 
-GigFlow assignment for internship at [ServiceHive](https://www.servicehive.tech).
+## GigFlow assignment for internship at [ServiceHive](https://www.servicehive.tech).
+#### Implemented required features and also bonus features(transaction and ws notification)
 ## Requirements
 - **Node.js 20+** for the frontend tools and npm scripts.
 - **Bun** (>=1) so the backend `dev` and `start` scripts can run `bun` commands. Install it via `curl https://bun.sh/install | bash`, then reopen your shell so `bun` is on `$PATH`.
