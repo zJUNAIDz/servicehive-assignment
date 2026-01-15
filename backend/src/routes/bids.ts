@@ -4,6 +4,7 @@ import { bidModel } from "../models/bid";
 import { gigModel } from "../models/gig";
 import { userModel, type User } from "../models/user";
 import type { UserJWT } from "../types/express";
+import { wsManager } from "../lib/websocket";
 
 export const bidRouter = Router();
 
@@ -95,6 +96,16 @@ bidRouter.patch("/:bidId/hire", async (req, res) => {
       .session(session);
 
     await session.commitTransaction();
+    
+    // Send real-time notification to the freelancer
+    wsManager.sendNotificationToUser(bid.freelancerId.toString(), {
+      type: "hired",
+      message: `You have been hired for ${gig.title}!`,
+      gigId: gig._id.toString(),
+      gigTitle: gig.title,
+      timestamp: new Date().toISOString(),
+    });
+    
     res.status(200).json(bid);
   } catch (error) {
     await session.abortTransaction();
