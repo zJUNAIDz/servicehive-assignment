@@ -1,12 +1,12 @@
 //* create gig card component
+import BidModal from '@/features/bids/components/bidModal'
+import { api } from '@/shared/lib/apiClient'
+import { cn } from '@/shared/lib/utils'
+import type { User } from '@/shared/providers/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
-import type { Gig } from '../types'
-import { BidList } from '../../bids/components/bidList'
 import SubmitBidForm from '../../bids/components/submitBidForm'
-import type { User } from '@/shared/providers/auth-context'
-import { cn } from '@/shared/lib/utils'
-import { api } from '@/shared/lib/apiClient'
+import type { Gig } from '../types'
 
 interface GigCardProps {
   gig: Gig
@@ -33,7 +33,7 @@ export const GigCard: React.FC<GigCardProps> = ({
   })
   return (
     <div
-      className={cn("border rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer", isOwner ? "bg-amber-300": "border-green-500", status === "assigned" && "bg-green-300")}
+      className={cn("border rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer", isOwner ? "bg-amber-300" : "border-green-500", status === "assigned" && "bg-green-300")}
       onClick={onClick}
     >
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
@@ -50,7 +50,7 @@ export const GigCard: React.FC<GigCardProps> = ({
       }
       {
         isOwner ? (
-          <BidList bids={bids} key={id} onBidClick={() => { }} />
+          <BidModal bids={bids} gigId={id} />
         ) : (
           status === "open"
             ? <SubmitBidForm gigId={id} freelancerId={currentUser.id} />
