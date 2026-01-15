@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import { MONGO_URI } from "../lib/constants";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://localhost:27017/gigflow"
-    );
+    console.log("Connecting to MongoDB...");
+    await mongoose.connect(MONGO_URI);
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);

@@ -13,7 +13,7 @@ app.use(cookieparser());
 app.use(helmet());
 app.use(
   cors({
-    origin: [CLIENT_URL,"http://localhost:4173"],
+    origin: [CLIENT_URL,"http://localhost:4173", "http://localhost:5173"],
     credentials: true,
   })
 );

@@ -1,13 +1,8 @@
 import bcrypt from "bcryptjs";
 import { Router, type Request, type Response } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-import { ACCESS_SECRET, REFRESH_SECRET } from "../lib/constants";
-import {
-  decodeToken,
-  signAccessToken,
-  signRefreshToken,
-  verifyToken,
-} from "../lib/jwt";
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../lib/constants";
+import { decodeToken, signAccessToken, signRefreshToken } from "../lib/jwt";
 import { requireAuth } from "../middlewares/auth";
 import { userModel } from "../models/user";
 import type { UserJWT } from "../types/express";
@@ -59,8 +54,8 @@ authRouter.post("/login", async (req, res) => {
       return;
     }
     const userPayload = { id: user._id, name: user.name, email: user.email };
-    const accessToken = signAccessToken(userPayload, ACCESS_SECRET);
-    const refreshToken = signRefreshToken(userPayload, REFRESH_SECRET);
+    const accessToken = signAccessToken(userPayload, JWT_ACCESS_SECRET);
+    const refreshToken = signRefreshToken(userPayload, JWT_REFRESH_SECRET);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -93,7 +88,7 @@ authRouter.post("/refresh", (req, res) => {
       email: decoded.email,
     };
     // console.log("Refreshing token for user:", user);
-    const newAccessToken = signAccessToken(user, ACCESS_SECRET);
+    const newAccessToken = signAccessToken(user, JWT_ACCESS_SECRET);
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: true,
@@ -110,7 +105,9 @@ authRouter.post("/refresh", (req, res) => {
 authRouter.get("/me", requireAuth, async (req: Request, res: Response) => {
   try {
     // console.log(req.user);
-    const user = (await userModel.findById((req.user as JwtPayload).id))?.toJSON();
+    const user = (
+      await userModel.findById((req.user as JwtPayload).id)
+    )?.toJSON();
     console.log("Fetched user:", user);
     if (!user) return res.sendStatus(404);
     res.json(user);
@@ -123,4 +120,3 @@ authRouter.post("/logout", (req, res) => {
   res.clearCookie("refreshToken");
   res.json({ message: "Logged out successfully" });
 });
-
